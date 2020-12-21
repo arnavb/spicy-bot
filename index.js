@@ -1,8 +1,9 @@
 const Discord = require('discord.js');
 const Entities = require('html-entities').XmlEntities;
-const client = new Discord.Client();
 const axios = require('axios').default;
 require('dotenv').config();
+
+const client = new Discord.Client();
 
 client.once('ready', () => {
   console.log('Ready!');
