@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const Entities = require('html-entities').XmlEntities;
 const axios = require('axios').default;
+const startServer = require('./server');
 require('dotenv').config();
 
 const client = new Discord.Client();
@@ -94,4 +95,5 @@ client.on('message', async (message) => {
   }
 });
 
+startServer();
 client.login(process.env.DISCORD_BOT_LOGIN); // Loaded from either .env or environment variable
