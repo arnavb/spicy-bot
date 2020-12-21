@@ -94,4 +94,4 @@ client.on('message', async (message) => {
   }
 });
 
-client.login(process.env.DISCORD_BOT_LOGIN);
+client.login(process.env.DISCORD_BOT_LOGIN); // Loaded from either .env or environment variable
