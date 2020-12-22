@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const Entities = require('html-entities').XmlEntities;
 const axios = require('axios').default;
 const startServer = require('./server');
+const { randomElement } = require('./utils');
 require('dotenv').config();
 
 const client = new Discord.Client();
@@ -12,10 +13,6 @@ client.once('ready', () => {
 
 const candidates = new Set();
 const entities = new Entities();
-
-function randomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
 
 async function generateInsult(to) {
   try {
