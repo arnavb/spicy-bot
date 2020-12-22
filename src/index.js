@@ -11,8 +11,10 @@ client.once('ready', () => {
   console.log('Ready!');
 });
 
-const candidates = new Set();
-const entities = new Entities();
+const context = {
+  candidates: new Set(),
+  entities: new Entities(),
+};
 
 async function generateInsult(to) {
   try {
@@ -25,7 +27,7 @@ async function generateInsult(to) {
       })
     ).data;
 
-    insult = entities.decode(insult);
+    insult = context.entities.decode(insult);
 
     return `${to}, ${insult[0].toLowerCase()}${insult.substring(1)}`;
   } catch (error) {
@@ -61,9 +63,9 @@ client.on('message', async (message) => {
 
   if (command === 'insult') {
     let personToInsult;
-    candidates.add(message.author);
+    context.candidates.add(message.author);
 
-    let candidatesArray = Array.from(candidates);
+    let candidatesArray = Array.from(context.candidates);
 
     if (args.length === 0) {
       personToInsult = randomElement(candidatesArray);
@@ -76,9 +78,9 @@ client.on('message', async (message) => {
     await message.channel.send(insultText);
   } else if (command === 'compliment') {
     let personToCompliment;
-    candidates.add(message.author);
+    context.candidates.add(message.author);
 
-    let candidatesArray = Array.from(candidates);
+    let candidatesArray = Array.from(context.candidates);
 
     if (args.length === 0) {
       personToCompliment = randomElement(candidatesArray);
