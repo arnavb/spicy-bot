@@ -52,41 +52,39 @@ client.on('message', async (message) => {
   if (message.author.id === client.user.id) {
     return;
   }
-  if (message.content.toLowerCase().startsWith('!insult')) {
+
+  if (!message.content.startsWith('!')) {
+    return;
+  }
+
+  const messageString = message.substring(1);
+  const [command, ...args] = messageString.split(' ');
+
+  if (command === 'insult') {
     let personToInsult;
     candidates.add(message.author);
 
     let candidatesArray = Array.from(candidates);
 
-    if (message.content.trim().length === 7) {
+    if (args.length === 0) {
       personToInsult = randomElement(candidatesArray);
     } else {
-      personToInsult =
-        message.mentions.members.first() ||
-        message.content.slice(7).trim().split(/ +/).join(' ');
-      if (typeof personToInsult === 'string') {
-        candidates.add(personToInsult);
-      }
+      personToInsult = args.join(' ');
     }
 
     const insultText = await generateInsult(personToInsult);
 
     await message.channel.send(insultText);
-  } else if (message.content.toLowerCase().startsWith('!compliment')) {
+  } else if (command === 'compliment') {
     let personToCompliment;
     candidates.add(message.author);
 
     let candidatesArray = Array.from(candidates);
 
-    if (message.content.trim().length === 11) {
+    if (args.length === 0) {
       personToCompliment = randomElement(candidatesArray);
     } else {
-      personToCompliment =
-        message.mentions.members.first() ||
-        message.content.slice(11).trim().split(/ +/).join(' ');
-      if (typeof personToCompliment === 'string') {
-        candidates.add(personToCompliment);
-      }
+      personToCompliment = args.join(' ');
     }
 
     const complimentText = await generateCompliment(personToCompliment);
