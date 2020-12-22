@@ -1,51 +1,42 @@
 const Discord = require('discord.js');
+const util = require('util');
+const fs = require('fs');
 const Entities = require('html-entities').XmlEntities;
 const axios = require('axios').default;
 const startServer = require('./server');
 const { randomElement } = require('./utils');
+
 require('dotenv').config();
+const readdir = util.promisify(fs.readdir);
 
 const client = new Discord.Client();
-
-client.once('ready', () => {
-  console.log('Ready!');
-});
+let commands = null;
 
 const context = {
   candidates: new Set(),
   entities: new Entities(),
 };
 
-async function generateInsult(to) {
-  try {
-    let { insult } = (
-      await axios.get('https://evilinsult.com/generate_insult.php', {
-        params: {
-          lang: 'en',
-          type: 'json',
-        },
-      })
-    ).data;
+async function loadCommands() {
+  const result = new Discord.Collection();
 
-    insult = context.entities.decode(insult);
+  const allCommandFiles = (
+    await readdir(`${__dirname}/commands`)
+  ).filter((file) => file.endsWith('.js'));
 
-    return `${to}, ${insult[0].toLowerCase()}${insult.substring(1)}`;
-  } catch (error) {
-    console.log(`Error fetching result: ${error}`);
+  for (const file of allCommandFiles) {
+    const command = require(`${__dirname}/commands/${file}`);
+    result.set(command.name, command);
   }
+  return result;
 }
 
-async function generateCompliment(to) {
-  try {
-    let { compliment } = (
-      await axios.get('https://complimentr.com/api', {})
-    ).data;
+client.once('ready', async () => {
+  commands = await loadCommands();
+  console.log('Loaded all commands');
 
-    return `${to}, ${compliment[0].toLowerCase()}${compliment.substring(1)}`;
-  } catch (error) {
-    console.log(`Error fetching result: ${error}`);
-  }
-}
+  console.log('Ready!');
+});
 
 client.on('message', async (message) => {
   if (message.author.id === client.user.id) {
@@ -59,39 +50,15 @@ client.on('message', async (message) => {
   }
 
   messageString = messageString.substring(1);
-  const [command, ...args] = messageString.split(' ');
+  const [commandName, ...args] = messageString.split(' ');
 
-  if (command === 'insult') {
-    let personToInsult;
-    context.candidates.add(message.author);
+  const command = commands.find((cmd) => cmd.name == commandName);
 
-    let candidatesArray = Array.from(context.candidates);
-
-    if (args.length === 0) {
-      personToInsult = randomElement(candidatesArray);
-    } else {
-      personToInsult = args.join(' ');
-    }
-
-    const insultText = await generateInsult(personToInsult);
-
-    await message.channel.send(insultText);
-  } else if (command === 'compliment') {
-    let personToCompliment;
-    context.candidates.add(message.author);
-
-    let candidatesArray = Array.from(context.candidates);
-
-    if (args.length === 0) {
-      personToCompliment = randomElement(candidatesArray);
-    } else {
-      personToCompliment = args.join(' ');
-    }
-
-    const complimentText = await generateCompliment(personToCompliment);
-
-    await message.channel.send(complimentText);
+  if (!command) {
+    return;
   }
+
+  command.execute(args, message, context);
 });
 
 startServer();
