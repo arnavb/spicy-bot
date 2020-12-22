@@ -53,11 +53,13 @@ client.on('message', async (message) => {
     return;
   }
 
-  if (!message.content.startsWith('!')) {
+  let messageString = message.content;
+
+  if (!messageString.startsWith('!')) {
     return;
   }
 
-  const messageString = message.substring(1);
+  messageString = messageString.substring(1);
   const [command, ...args] = messageString.split(' ');
 
   if (command === 'insult') {
