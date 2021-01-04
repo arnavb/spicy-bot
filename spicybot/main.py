@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
+import keep_alive
 from commands.statements import insult, compliment, yomama
 
 load_dotenv()
@@ -16,6 +17,7 @@ def main():
     bot.add_command(yomama)
 
     try:
+        keep_alive.keep_alive()
         bot.run(os.environ["DISCORD_BOT_LOGIN"])
     except KeyError:
         print("Error! DISCORD_BOT_LOGIN environment variable is missing!")
