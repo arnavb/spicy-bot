@@ -1,12 +1,22 @@
 import os
-from dotenv import load_dotenv
-import discord
+from pathlib import Path
 from discord.ext import commands
+import yaml
+
 
 import keep_alive
 from commands.statements import insult, compliment, yomama
 
-load_dotenv()
+
+def load_config():
+    with open(Path(__file__).parents[1] / "config.yaml") as f:
+        try:
+            config = yaml.load(f, Loader=yaml.FullLoader)
+            return config["bot_token"]
+        except yaml.YAMLError as e:
+            print("bot_token was not loaded from config.yaml")
+            print(f"Error: {e}")
+            return ""
 
 
 def main():
@@ -16,11 +26,8 @@ def main():
     bot.add_command(compliment)
     bot.add_command(yomama)
 
-    try:
-        keep_alive.keep_alive()
-        bot.run(os.environ["DISCORD_BOT_LOGIN"])
-    except KeyError:
-        print("Error! DISCORD_BOT_LOGIN environment variable is missing!")
+    keep_alive.keep_alive()
+    bot.run(load_config())
 
 
 if __name__ == "__main__":

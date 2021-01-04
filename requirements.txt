@@ -1,5 +1,5 @@
 discord.py
-python-dotenv
+pyyaml
 httpx
 flask
 black
